@@ -31,8 +31,8 @@ export default {
   data () {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       rules: {
         username: [
@@ -57,22 +57,23 @@ export default {
       try {
         await this.$refs.logInForm.validate()
         console.log('校验成功')
-        try {
-          const res = await this.$store.dispatch('user/logIn', this.loginForm)
-          console.log(res)
-          if (res.data.meta.status === 200) {
-            console.log(this.$store)
-            this.$store.commit('user/setToken', res.data.data.token)
-            this.$message.success('登录成功')
-            this.$router.push('/home')
-          } else {
-            this.$message.error('登录失败，请检查用户名或密码')
-          }
-        } catch (error) {
-          console.log(error)
-        }
+        await this.$store.dispatch('user/logIn', this.loginForm)
+        // try {
+        //   const res = await this.$store.dispatch('user/logIn', this.loginForm)
+        //   console.log(res)
+        //   if (res.data.meta.status === 200) {
+        //     console.log(this.$store)
+        //     this.$store.commit('user/updateToken', res.data.data.token)
+        //     this.$message.success('登录成功')
+        //     this.$router.push('/home')
+        //   } else {
+        //     this.$message.error('登录失败，请检查用户名或密码')
+        //   }
+        // } catch (error) {
+        //   console.log(error)
+        // }
       } catch (err) {
-        this.$message.error('登录表单校验失败')
+        this.$message.error('请按要求输入账号和密码')
       }
     }
   },

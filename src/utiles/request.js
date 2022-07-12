@@ -1,6 +1,6 @@
 import axios from 'axios'
 const request = axios.create({
-  baseURL: 'http://liufusong.top:8899/api/private/v1/',
+  baseURL: process.env.VUE_APP_BASE_URL,
   timeout: 8000
 })
 export default request
