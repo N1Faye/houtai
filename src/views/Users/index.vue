@@ -8,8 +8,18 @@
     <el-card class="box-card">
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入内容" v-model="input">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input
+            placeholder="请输入内容"
+            v-model="input"
+            clearable
+            @keyup.enter.native="search"
+            @clear="search"
+          >
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="search"
+            ></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -188,6 +198,7 @@ export default {
       total: 0,
       pagenum: 1,
       pagesize: 5,
+      query: '',
       usersList: [],
       allUsersList: [],
       addUserForm: {
@@ -237,6 +248,7 @@ export default {
     async getUsers () {
       try {
         const res = await getUsers({
+          query: this.query,
           pagenum: this.pagenum,
           pagesize: this.pagesize
         })
@@ -271,15 +283,6 @@ export default {
         this.dialogAddUser = false
         this.$message.success('添加用户成功')
         this.addUserForm = {}
-        // if (res.data.meta.status === 201) {
-        //   this.pagenum = 1
-        //   this.getUsers()
-        //   this.dialogAddUser = false
-        //   this.$message.success('添加用户成功')
-        //   this.addUserForm = {}
-        // } else {
-        //   this.$message.error(res.data.meta.msg)
-        // }
       } catch (error) {
         console.log(error)
       }
@@ -289,11 +292,6 @@ export default {
       try {
         await changeUserStatus(uId, type)
         this.$message.success('状态修改成功')
-        // if (res.data.meta.status === 200) {
-        //   this.$message.success('状态修改成功')
-        // } else {
-        //   this.$message.error(res.data.meta.msg)
-        // }
       } catch (error) {
         console.log(error)
       }
@@ -313,14 +311,6 @@ export default {
         this.dialogEdit = false
         this.$message.success('用户资料编辑成功')
         this.editForm = {}
-        // if (res.data.meta.status === 200) {
-        //   this.getUsers()
-        //   this.dialogEdit = false
-        //   this.$message.success('用户资料编辑成功')
-        //   this.editForm = {}
-        // } else {
-        //   this.$message.error(res.data.meta.msg)
-        // }
       } catch (error) {
         console.log(error)
       }
@@ -337,12 +327,6 @@ export default {
           await deleteUser(row.id)
           this.getUsers()
           this.$message.success('删除成功')
-          // if (res.data.meta.status === 200) {
-          //   this.getUsers()
-          //   this.$message.success('删除成功')
-          // } else {
-          //   this.$message.error(res.data.meta.msg)
-          // }
         } catch (error) {
           console.log(error)
         }
@@ -369,16 +353,14 @@ export default {
       try {
         await setUserRole(this.setForm.id, this.setForm.roleid)
         this.$message.success('修改用户角色成功')
-        // if (res.data.meta.status === 200) {
-        //   this.getUsers()
-        //   this.dialogSet = false
-        //   this.$message.success('修改用户角色成功')
-        // } else {
-        //   this.$message.error(res.data.meta.msg)
-        // }
       } catch (error) {
         console.log(error)
       }
+    },
+    search () {
+      this.query = this.input
+      this.pagenum = 1
+      this.getUsers()
     }
   },
   computed: {},

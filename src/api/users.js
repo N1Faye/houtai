@@ -2,13 +2,14 @@ import request from '@/utiles/request'
 
 /**
  *获取用户列表
- * @param {pagenum 当前页码  pagesize 每页显示条数}
+ * @param {pagenum 当前页码  pagesize 每页显示条数 query查询参数可以为空}
  * @returns
  */
-export const getUsers = ({ pagenum, pagesize }) => {
+export const getUsers = ({ query, pagenum, pagesize }) => {
   return request({
     url: 'users',
     params: {
+      query,
       pagenum,
       pagesize
     }
@@ -81,5 +82,16 @@ export const setUserRole = (id, rid) => {
     data: {
       rid
     }
+  })
+}
+
+/**
+ *根据id获取用户信息
+ * @param
+ * @returns
+ */
+export const getUserById = (id) => {
+  return request({
+    url: `users/${id}`
   })
 }
