@@ -32,7 +32,7 @@
             <template #title
               ><i class="el-icon-user-solid" /><span>用户管理</span></template
             >
-            <el-menu-item index="/users" to="/users">
+            <el-menu-item index="/users">
               <i class="el-icon-menu" /> 用户列表</el-menu-item
             >
           </el-submenu>

@@ -52,29 +52,15 @@ export default {
       this.$refs.logInForm.resetFields()
     },
     // 登录
-    async login () {
+    login () {
       // 二次校验
-      try {
-        await this.$refs.logInForm.validate()
-        console.log('校验成功')
-        await this.$store.dispatch('user/logIn', this.loginForm)
-        // try {
-        //   const res = await this.$store.dispatch('user/logIn', this.loginForm)
-        //   console.log(res)
-        //   if (res.data.meta.status === 200) {
-        //     console.log(this.$store)
-        //     this.$store.commit('user/updateToken', res.data.data.token)
-        //     this.$message.success('登录成功')
-        //     this.$router.push('/home')
-        //   } else {
-        //     this.$message.error('登录失败，请检查用户名或密码')
-        //   }
-        // } catch (error) {
-        //   console.log(error)
-        // }
-      } catch (err) {
-        this.$message.error('请按要求输入账号和密码')
-      }
+      this.$refs.logInForm.validate(async valid => {
+        if (valid) {
+          await this.$store.dispatch('user/logIn', this.loginForm)
+        } else {
+          this.$message.error('请按要求输入账号和密码')
+        }
+      })
     }
   },
   computed: {

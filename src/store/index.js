@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import getters from './getters'
 import user from './modules/user'
-import users from './modules/users'
+import roles from './modules/roles'
 
 Vue.use(Vuex)
 const store = new Vuex.Store({
@@ -15,7 +15,7 @@ const store = new Vuex.Store({
   },
   modules: {
     user,
-    users
+    roles
   }
 })
 export default store

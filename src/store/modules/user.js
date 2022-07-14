@@ -14,18 +14,21 @@ const mutations = {
 }
 const actions = {
   async logIn (context, { username, password }) {
-    try {
-      const res = await logIn({ username, password })
-      if (res.data.meta.status === 200) {
-        context.commit('updateToken', res.data.data.token)
-        Message.success('登录成功')
-        router.push('/home')
-      } else {
-        Message.error('登录失败，请检查用户名或密码')
-      }
-    } catch (error) {
-      Message.error('登录失败请重试')
-    }
+    // try {
+    const res = await logIn({ username, password })
+    context.commit('updateToken', res.token)
+    Message.success('登录成功')
+    router.push('/home')
+    // if (res.data.meta.status === 200) {
+    //   context.commit('updateToken', res.data.data.token)
+    //   Message.success('登录成功')
+    //   router.push('/home')
+    // } else {
+    //   Message.error('登录失败，请检查用户名或密码')
+    // }
+    // } catch (error) {
+    //   console.log(error)
+    // }
   }
 }
 export default {
