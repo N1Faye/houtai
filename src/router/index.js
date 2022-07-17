@@ -11,9 +11,19 @@ const routes = [
     path: '/home',
     component: () => import('@/views/Home'),
     children: [
-      { path: '/users', component: () => import('@/views/Users') }
+      { path: '/users', component: () => import('@/views/Users') },
+      { path: '/roles', component: () => import('@/views/Roles') },
+      { path: '/power', component: () => import('@/views/Power') },
+      { path: '/goodslist', component: () => import('@/views/GoodsList') },
+      { path: '/goodslist/add', component: () => import('@/views/GoodsList/AddGoods') },
+      { path: '/sortsparams', component: () => import('@/views/SortsParams') },
+      { path: '/goodssorts', component: () => import('@/views/GoodsSorts') },
+      { path: '/orderlist', component: () => import('@/views/OrderList') },
+      { path: '/datareport', component: () => import('@/views/DataReport') }
+
     ]
   }
+
 ]
 
 const router = new VueRouter({

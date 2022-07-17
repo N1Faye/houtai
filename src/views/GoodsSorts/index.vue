@@ -7,44 +7,25 @@
     </el-breadcrumb>
     <el-card class="box-card">
       <el-row :gutter="20">
-        <el-col :span="8">
-          <el-input
-            placeholder="请输入内容"
-            v-model="input"
-            clearable
-            @keyup.enter.native="search"
-            @clear="search"
-          >
-            <el-button
-              slot="append"
-              icon="el-icon-search"
-              @click="search"
-            ></el-button>
-          </el-input>
-        </el-col>
         <el-col :span="4">
           <el-button type="primary" @click="dialogAddUser = true"
-            >添加用户</el-button
+            >添加分类</el-button
           ></el-col
         >
         <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
       </el-row>
-      <el-table :data="usersList" border style="width: 100%" stripe>
+      <el-table :data="sortsList" border style="width: 100%" stripe>
         <el-table-column type="index" label="#" width="50"> </el-table-column>
-        <el-table-column prop="username" label="姓名" width="224">
+        <el-table-column
+          prop="username"
+          label="分类名称"
+          width="224"
+          type="expand"
+          >
         </el-table-column>
-        <el-table-column prop="mobile" label="电话" width="224">
+        <el-table-column prop="mobile" label="是否有效" width="224">
         </el-table-column>
-        <el-table-column prop="role_name" label="角色" width="224">
-        </el-table-column>
-        <el-table-column label="状态" width="224">
-          <template v-slot="scope">
-            <el-switch
-              v-model="scope.row.mg_state"
-              @change="changeUserStatus(scope.row.id, scope.row.mg_state)"
-            >
-            </el-switch>
-          </template>
+        <el-table-column prop="role_name" label="等级" width="224">
         </el-table-column>
         <el-table-column prop="address" label="操作">
           <template slot-scope="scope">
@@ -52,21 +33,16 @@
               type="primary"
               size="mini"
               @click="handleEdit(scope.$index, scope.row)"
-              ><i class="el-icon-edit"></i
-            ></el-button>
+              ><i class="el-icon-edit"></i>编辑</el-button
+            >
             <el-button
               type="danger"
               size="mini"
               @click="handleDelete(scope.$index, scope.row)"
-              ><i class="el-icon-delete"></i
-            ></el-button>
-            <el-button
-              type="warning"
-              size="mini"
-              @click="handleSet(scope.$index, scope.row)"
-              ><i class="el-icon-setting"></i
-            ></el-button> </template
-        ></el-table-column>
+              ><i class="el-icon-delete"></i>删除</el-button
+            >
+          </template></el-table-column
+        >
       </el-table>
       <div class="block">
         <el-pagination
@@ -160,7 +136,6 @@
           placeholder="请选择"
           clearable
           @change="select(selectValue)"
-          filterable
         >
           <el-option
             v-for="item in setForm.rolesList"
@@ -179,7 +154,7 @@
 </template>
 
 <script>
-import { getUsers, addUser, changeUserStatus, editUser, deleteUser, setUserRole } from '@/api/users'
+import { getUsers, addUser } from '@/api/users'
 import { validMobile } from '@/utiles/validate'
 export default {
   created () {
@@ -200,7 +175,8 @@ export default {
       pagenum: 1,
       pagesize: 5,
       query: '',
-      usersList: [],
+      sortsList: [],
+      allUsersList: [],
       addUserForm: {
         username: '',
         password: '',
@@ -257,7 +233,7 @@ export default {
           this.getUsers()
         }
         this.total = res.total
-        this.usersList = res.users
+        this.sortsList = res.users
       } catch (error) {
         console.log(error)
       }
@@ -288,79 +264,46 @@ export default {
       }
     },
     // 更改用户状态
-    async changeUserStatus (uId, type) {
-      try {
-        await changeUserStatus(uId, type)
-        this.$message.success('状态修改成功')
-      } catch (error) {
-        console.log(error)
-      }
-    },
     handleEdit (index, row) {
-      this.editForm.username = row.username
-      this.editForm.id = row.id
-      this.editForm.email = row.email
-      this.editForm.mobile = row.mobile
-      this.dialogEdit = true
+      //   this.editForm.username = row.username
+      //   this.editForm.id = row.id
+      //   this.editForm.email = row.email
+      //   this.editForm.mobile = row.mobile
+      //   this.dialogEdit = true
     },
-    // 编辑用户资料
+    // // 编辑用户资料
     async editUser () {
-      try {
-        await editUser(this.editForm)
-        this.getUsers()
-        this.dialogEdit = false
-        this.$message.success('用户资料编辑成功')
-        this.editForm = {}
-      } catch (error) {
-        console.log(error)
-      }
+      //   try {
+      //     await editUser(this.editForm)
+      //     this.getUsers()
+      //     this.dialogEdit = false
+      //     this.$message.success('用户资料编辑成功')
+      //     this.editForm = {}
+      //   } catch (error) {
+      //     console.log(error)
+      //   }
     },
-    // 删除单个用户
+    // // 删除单个用户
     handleDelete (index, row) {
-      console.log(index, row)
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async () => {
-        try {
-          await deleteUser(row.id)
-          this.getUsers()
-          this.$message.success('删除成功')
-        } catch (error) {
-          console.log(error)
-        }
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-    },
-    async handleSet (index, row) {
-      this.setForm.username = row.username
-      this.setForm.id = row.id
-      this.setForm.role_name = row.role_name
-      this.dialogSet = true
-      await this.$store.dispatch('roles/getRoles')
-      this.setForm.rolesList = this.$store.getters.rolesList
-    },
-    select (roleid) {
-      this.setForm.roleid = roleid
-      console.log('id', this.setForm.roleid)
-    },
-    async setUserRole () {
-      try {
-        await setUserRole(this.setForm.id, this.setForm.roleid)
-        this.$message.success('修改用户角色成功')
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    search () {
-      this.query = this.input
-      this.pagenum = 1
-      this.getUsers()
+      //   console.log(index, row)
+      //   this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //     type: 'warning'
+      //   }).then(async () => {
+      //     try {
+      //       await deleteUser(row.id)
+      //       this.getUsers()
+      //       this.$message.success('删除成功')
+      //     } catch (error) {
+      //       console.log(error)
+      //     }
+      //   }).catch(() => {
+      //     this.$message({
+      //       type: 'info',
+      //       message: '已取消删除'
+      //     })
+      //   })
     }
   },
   computed: {},
