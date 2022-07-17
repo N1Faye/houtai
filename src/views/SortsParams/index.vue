@@ -93,7 +93,8 @@ export default {
   },
   data () {
     const validateName = (rule, value, callback) => {
-
+      console.log(this.paramsList.some(item => item.attr_name === value))
+      this.paramsList.some(item => item.attr_name === value) ? callback(new Error('参数名/属性名已存在')) : callback()
     }
     return {
       isButtonDiable: true,
@@ -107,7 +108,9 @@ export default {
       addFormRule: {
         attr_name: [
           { required: true, message: '不能为空', trigger: 'blur' },
-          { min: 2, max: 8, message: '长度在3到8之间', trigger: 'blur' }
+          { min: 2, max: 8, message: '长度在3到8之间', trigger: 'blur' },
+          { validator: validateName, trigger: 'blur' }
+
         ]
       }
 
@@ -119,6 +122,7 @@ export default {
     },
     async getParmasList () {
       this.paramsList = await getParmasList({ id: this.addForm.id, sel: this.sel })
+      console.log('list', this.paramsList)
     },
 
     async handleChange (value) {
@@ -130,7 +134,7 @@ export default {
       }
       this.isButtonDiable = false
       this.addForm.id = value[2]
-      this.paramsList = await getParmasList({ id: value[2], sel: this.sel })
+      await this.getParmasList()
     },
     addParams () {
       this.$refs.paramsForm.validate(async (valid) => {
