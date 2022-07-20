@@ -8,42 +8,64 @@
     <el-card class="box-card">
       <el-row :gutter="20">
         <el-col :span="4">
-          <el-button type="primary" @click="dialogAddUser = true"
+          <el-button type="primary" @click="dialogAddSorts = true"
             >添加分类</el-button
           ></el-col
         >
         <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
       </el-row>
-      <el-table :data="sortsList" border style="width: 100%" stripe>
-        <el-table-column type="index" label="#" width="50"> </el-table-column>
-        <el-table-column
-          prop="username"
-          label="分类名称"
-          width="224"
-          type="expand"
-          >
-        </el-table-column>
-        <el-table-column prop="mobile" label="是否有效" width="224">
-        </el-table-column>
-        <el-table-column prop="role_name" label="等级" width="224">
-        </el-table-column>
-        <el-table-column prop="address" label="操作">
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              size="mini"
-              @click="handleEdit(scope.$index, scope.row)"
-              ><i class="el-icon-edit"></i>编辑</el-button
-            >
-            <el-button
-              type="danger"
-              size="mini"
-              @click="handleDelete(scope.$index, scope.row)"
-              ><i class="el-icon-delete"></i>删除</el-button
-            >
-          </template></el-table-column
+      <zk-table
+        ref="table"
+        :data="sortsList"
+        :columns="columns"
+        index-text="#"
+        border
+        show-index
+        tree-type
+        :selection-type="false"
+        :expand-type="false"
+      >
+        <template slot="cat_deleted" scope="scope">
+          <i
+            :class="
+              scope.row.cat_deleted ? 'el-icon-success' : 'el-icon-success'
+            "
+            :style="scope.row.cat_deleted ? 'color:red' : 'color: green'"
+          ></i>
+        </template>
+        <template slot="cat_level" scope="scope">
+          <el-tag
+            :type="
+              Number(scope.row.cat_level) === 0
+                ? ''
+                : Number(scope.row.cat_level) == 1
+                ? 'success'
+                : 'warning'
+            "
+            >{{
+              Number(scope.row.cat_level) === 0
+                ? "一级"
+                : Number(scope.row.cat_level) == 1
+                ? "二级"
+                : "三级"
+            }}
+          </el-tag></template
         >
-      </el-table>
+        <template slot="操作">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="handleEdit(scope.$index, scope.row)"
+            ><i class="el-icon-edit"></i>编辑</el-button
+          >
+          <el-button
+            type="danger"
+            size="mini"
+            @click="handleDelete(scope.$index, scope.row)"
+            ><i class="el-icon-delete"></i>删除</el-button
+          ></template
+        >
+      </zk-table>
       <div class="block">
         <el-pagination
           @size-change="handleSizeChange"
@@ -57,37 +79,29 @@
       </div>
     </el-card>
     <!-- 添加用户 -->
-    <el-dialog title="添加用户对话框" :visible.sync="dialogAddUser">
-      <el-form :model="addUserForm" :rules="addUserRules">
+    <el-dialog title="添加商品分类" :visible.sync="dialogAddSorts">
+      <el-form :model="addSortsForm" :rules="addSortsRules">
         <el-form-item
-          label="用户名"
+          label="分类名称"
           :label-width="formLabelWidth"
-          prop="username"
+          prop="cat_name"
         >
           <el-input
-            v-model="addUserForm.username"
+            v-model="addSortsForm.cat_name"
             autocomplete="off"
           ></el-input>
         </el-form-item>
         <el-form-item
-          label="密码"
+          label="父级分类"
           :label-width="formLabelWidth"
-          prop="password"
+          prop="cat_id"
         >
-          <el-input
-            v-model="addUserForm.password"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
-          <el-input v-model="addUserForm.email" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item
-          label="手机号"
-          :label-width="formLabelWidth"
-          prop="mobile"
-        >
-          <el-input v-model="addUserForm.mobile" autocomplete="off"></el-input>
+          <el-cascader
+            v-model="value"
+            :options="goodsSortsList"
+            :props="{ expandTrigger: 'hover' }"
+            @change="handleChange"
+          ></el-cascader>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -121,52 +135,52 @@
         <el-button type="primary" @click="editUser">确 定</el-button>
       </div>
     </el-dialog>
-    <!-- 设置用户权限 -->
-    <el-dialog title="分配角色" :visible.sync="dialogSet">
-      <p>
-        当前用户：<span>{{ setForm.username }}</span>
-      </p>
-      <p>
-        当前角色：<span>{{ setForm.role_name }}</span>
-      </p>
-      <p>
-        <span>分配新角色：</span>
-        <el-select
-          v-model="selectValue"
-          placeholder="请选择"
-          clearable
-          @change="select(selectValue)"
-        >
-          <el-option
-            v-for="item in setForm.rolesList"
-            :key="item.id"
-            :label="item.roleName"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </p>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogSet = false">取 消</el-button>
-        <el-button type="primary" @click="setUserRole">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getUsers, addUser } from '@/api/users'
-import { validMobile } from '@/utiles/validate'
+import { getSortsList } from '@/api/goods'
 export default {
   created () {
-    this.getUsers()
+    this.getSortsList()
   },
   data () {
-    const validateMobile = (rule, value, callback) => {
-      validMobile(value) ? callback() : callback(new Error('手机号格式不正确'))
+    const validateName = (rule, value, callback) => {
+      this.paramsList.some(item => item.attr_name === value) ? callback(new Error('参数名/属性名已存在')) : callback()
     }
     return {
+      columns: [
+        {
+          label: '分类名称',
+          prop: 'cat_name',
+          width: '267px'
+        },
+        {
+          label: '是否有效',
+          prop: 'cat_deleted',
+          type: 'template',
+          template: 'cat_deleted',
+          width: '267px'
+
+        },
+        {
+          label: '排序',
+          type: 'template',
+          prop: 'cat_level',
+          template: 'cat_level',
+          width: '267px'
+
+        },
+        {
+          label: '操作',
+          type: 'template',
+          template: '操作',
+          width: '267px'
+
+        }
+      ],
       formLabelWidth: '120px',
-      dialogAddUser: false,
+      dialogAddSorts: false,
       dialogEdit: false,
       dialogSet: false,
       selectValue: [],
@@ -174,66 +188,39 @@ export default {
       total: 0,
       pagenum: 1,
       pagesize: 5,
-      query: '',
       sortsList: [],
-      allUsersList: [],
-      addUserForm: {
-        username: '',
-        password: '',
-        email: '',
-        mobile: ''
+      addSortsForm: {
+        cat_name: '',
+        cat_id: ''
       },
-      addUserRules: {
-        username: [
-          { required: true, message: '用户名不能为空', trigger: 'blur' },
-          { min: 3, max: 8, message: '长度在3到8之间', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '密码不能为空', trigger: 'blur' },
-          { min: 3, max: 8, message: '长度在3到8之间', trigger: 'blur' }
-        ],
-        email: [
-          { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-        ],
-        mobile: [
-          { validator: validateMobile, trigger: 'blur' }
+      addSortsRules: {
+        cat_name: [
+          { required: true, message: '不能为空', trigger: 'blur' },
+          { min: 3, max: 8, message: '长度在3到8之间', trigger: 'blur' },
+          { validator: validateName, trigger: 'blur' }
         ]
       },
-      editForm: { username: '', id: '', email: '', mobile: '' },
+      goodsSortsList: [],
+      editForm: {},
       editRules: {
-        email: [
-          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-          { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-        ],
-        mobile: [
-          { required: true, message: '请输入手机号', trigger: 'blur' },
-          { validator: validateMobile, trigger: 'blur' }
-        ]
-      },
-      setForm: {
-        username: '',
-        id: '',
-        role_name: '',
-        rolesList: [],
-        roleid: ''
       }
-
     }
   },
   methods: {
-    async getUsers () {
+    async getSortsList () {
       try {
-        const res = await getUsers({
-          query: this.query,
+        const res = await getSortsList({
           pagenum: this.pagenum,
           pagesize: this.pagesize
         })
-        if (res.users.length === 0 && this.pagenum !== 1) {
+        if (res.result.length === 0 && this.pagenum !== 1) {
           this.pagenum -= 1
-          this.getUsers()
+          this.getSortsList()
         }
         this.total = res.total
-        this.sortsList = res.users
+        console.log(res)
+        this.sortsList = res.result
+        console.log(this.sortsList)
       } catch (error) {
         console.log(error)
       }
@@ -243,19 +230,19 @@ export default {
       console.log(val)
       this.pagenum = 1
       console.log(this.pagenum)
-      this.getUsers()
+      this.getSortsList()
     },
     handleCurrentChange (val) {
       this.pagenum = val
       console.log(val)
-      this.getUsers()
+      this.getSortsList()
     },
     // 添加用户
     async addUser () {
       try {
-        await addUser(this.addUserForm)
+        // await addUser(this.addUserForm)
         this.pagenum = 1
-        this.getUsers()
+        this.getSortsList()
         this.dialogAddUser = false
         this.$message.success('添加用户成功')
         this.addUserForm = {}
@@ -325,7 +312,7 @@ export default {
     padding: 0;
   }
 }
-.el-table {
+.zk-table {
   font-size: 12px;
   margin: 15px 0 15px 0;
 }

@@ -93,7 +93,6 @@ export default {
   },
   data () {
     const validateName = (rule, value, callback) => {
-      console.log(this.paramsList.some(item => item.attr_name === value))
       this.paramsList.some(item => item.attr_name === value) ? callback(new Error('参数名/属性名已存在')) : callback()
     }
     return {
@@ -122,7 +121,6 @@ export default {
     },
     async getParmasList () {
       this.paramsList = await getParmasList({ id: this.addForm.id, sel: this.sel })
-      console.log('list', this.paramsList)
     },
 
     async handleChange (value) {
@@ -139,7 +137,6 @@ export default {
     addParams () {
       this.$refs.paramsForm.validate(async (valid) => {
         if (valid) {
-          console.log(this.addForm)
           await addParmas(this.addForm)
           this.getParmasList()
           this.$message.success('添加成功')
