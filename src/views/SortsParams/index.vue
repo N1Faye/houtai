@@ -22,6 +22,8 @@
           label: 'cat_name',
           value: 'cat_id',
         }"
+        filterable
+        clearable
         @change="handleChange"
       ></el-cascader>
       <el-tabs @tab-click="handleClick">

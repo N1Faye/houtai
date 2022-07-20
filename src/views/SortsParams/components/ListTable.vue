@@ -116,6 +116,7 @@ export default {
       this.changeValForm.attr_name = props.row.attr_name
       this.changeValForm.attr_sel = this.sel
       this.index = props.$index
+      console.log(this.list[this.index].attr_vals)
       const tagsList = this.list[this.index].attr_vals.trim().split(/\s+/)
       tagsList.splice(tagsList.indexOf(tag), 1)
       this.changeValForm.attr_vals = tagsList.join(' ')

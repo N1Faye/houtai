@@ -1,4 +1,4 @@
-import { getRoles, getPowerList } from '@/api/roles'
+import { getPowerList } from '@/api/roles'
 const state = {
   rolesList: []
 }
@@ -8,11 +8,6 @@ const mutations = {
   }
 }
 const actions = {
-  async getRoles (context) {
-    const res = await getRoles()
-    context.commit('updateRolesList', res)
-    console.log(res)
-  },
   async getPowerList (context, type) {
     const res = await getPowerList(type)
     console.log(res)

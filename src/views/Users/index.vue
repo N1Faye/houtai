@@ -76,13 +76,18 @@
           :page-size="5"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
+          :current-page.sync="pagenum"
         >
         </el-pagination>
       </div>
     </el-card>
     <!-- 添加用户 -->
-    <el-dialog title="添加用户对话框" :visible.sync="dialogAddUser">
-      <el-form :model="addUserForm" :rules="addUserRules">
+    <el-dialog
+      title="添加用户对话框"
+      :visible.sync="dialogAddUser"
+      @close="handleColse"
+    >
+      <el-form :model="addUserForm" :rules="addUserRules" ref="addForm">
         <el-form-item
           label="用户名"
           :label-width="formLabelWidth"
@@ -264,25 +269,22 @@ export default {
     },
     handleSizeChange (val) {
       this.pagesize = val
-      console.log(val)
       this.pagenum = 1
-      console.log(this.pagenum)
       this.getUsers()
     },
     handleCurrentChange (val) {
       this.pagenum = val
-      console.log(val)
       this.getUsers()
     },
     // 添加用户
     async addUser () {
       try {
         await addUser(this.addUserForm)
-        this.pagenum = 1
-        this.getUsers()
+        this.pagenum = (this.total + 1) % this.pagesize === 0 ? (this.total + 1) / this.pagesize : Math.ceil((this.total + 1) / this.pagesize)
+        this.pagenum = this.pagenum + 1
+        await this.getUsers()
         this.dialogAddUser = false
         this.$message.success('添加用户成功')
-        this.addUserForm = {}
       } catch (error) {
         console.log(error)
       }
@@ -297,10 +299,7 @@ export default {
       }
     },
     handleEdit (index, row) {
-      this.editForm.username = row.username
-      this.editForm.id = row.id
-      this.editForm.email = row.email
-      this.editForm.mobile = row.mobile
+      this.editForm = { ...row }
       this.dialogEdit = true
     },
     // 编辑用户资料
@@ -317,7 +316,6 @@ export default {
     },
     // 删除单个用户
     handleDelete (index, row) {
-      console.log(index, row)
       this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -325,7 +323,7 @@ export default {
       }).then(async () => {
         try {
           await deleteUser(row.id)
-          this.getUsers()
+          await this.getUsers()
           this.$message.success('删除成功')
         } catch (error) {
           console.log(error)
@@ -347,7 +345,6 @@ export default {
     },
     select (roleid) {
       this.setForm.roleid = roleid
-      console.log('id', this.setForm.roleid)
     },
     async setUserRole () {
       try {
@@ -361,6 +358,9 @@ export default {
       this.query = this.input
       this.pagenum = 1
       this.getUsers()
+    },
+    handleColse () {
+      this.$refs.addForm.resetFields()
     }
   },
   computed: {},

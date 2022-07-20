@@ -111,28 +111,28 @@ export const deleteParams = (id, attrid) => {
 }
 
 /**
- *修改用户角色
- * @param {*} id 用户id 不能为空
- * @param {*} rid 角色id 不能为空
+ *添加分类
+ * @param {cat_pid}不能为空，如果要添加 1 级分类，则父分类 Id 应该设置为 0
+ * @param {cat_name}参数名称不能为空
+ * @param {cat_level}不能为空，0表示一级分类；1表示二级分类；2表示三级分类
  * @returns
  */
-export const setUserRole = (id, rid) => {
+export const addCats = ({ cat_pid, cat_name, cat_level }) => {
   return request({
-    method: 'PUT',
-    url: `users/${id}/role`,
-    data: {
-      rid
-    }
+    method: 'POST',
+    url: 'categories',
+    data: { cat_pid, cat_name, cat_level }
   })
 }
 
 /**
- *根据id获取用户信息
- * @param
- * @returns
+ * 删除分类
+ * @param {id}  分类ID 不能为空
+ * @param {attrId} 属性id 不能为空
  */
-export const getUserById = (id) => {
+export const deleteCat = (id) => {
   return request({
-    url: `users/${id}`
+    method: 'DELETE',
+    url: `categories/${id}`
   })
 }
